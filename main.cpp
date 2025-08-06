@@ -68,12 +68,22 @@ private slots:
     }
 
     void refreshPorts() {
-        portCombo->clear();
-        for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()) {
+    portCombo->clear();
+    int aktifPortSayisi = 0;
+
+    for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()) {
+        QSerialPort testPort;
+        testPort.setPort(info);
+        if (testPort.open(QIODevice::ReadWrite)) {
             portCombo->addItem(info.portName());
+            testPort.close();
+            aktifPortSayisi++;
         }
-        log("Port listesi güncellendi", true);
     }
+
+    log(QString("Port listesi güncellendi (%1 aktif port bulundu)").arg(aktifPortSayisi), true);
+}
+
 
     void onDataReceived() {
         static QByteArray buffer;
